@@ -1,12 +1,16 @@
 package com.example.tabletussle;
 
 import android.os.Bundle;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.card.MaterialCardView;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -20,5 +24,52 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
+        setupClickListeners();
+    }
+
+    private void setupClickListeners() {
+        // Main action buttons
+        MaterialButton btnPlayNow = findViewById(R.id.btnPlayNow);
+        MaterialButton btnQuickMatch = findViewById(R.id.btnQuickMatch);
+        MaterialButton btnCreateRoom = findViewById(R.id.btnCreateRoom);
+        MaterialButton btnJoinRoom = findViewById(R.id.btnJoinRoom);
+
+        // Bottom navigation cards
+        MaterialCardView cardHowToPlay = findViewById(R.id.cardHowToPlay);
+        MaterialCardView cardStatistics = findViewById(R.id.cardStatistics);
+        MaterialCardView cardSettings = findViewById(R.id.cardSettings);
+
+        btnPlayNow.setOnClickListener(v ->
+            showToast("Starting game...")
+        );
+
+        btnQuickMatch.setOnClickListener(v ->
+            showToast("Finding a quick match...")
+        );
+
+        btnCreateRoom.setOnClickListener(v ->
+            showToast("Creating a new room...")
+        );
+
+        btnJoinRoom.setOnClickListener(v ->
+            showToast("Join an existing room...")
+        );
+
+        cardHowToPlay.setOnClickListener(v ->
+            showToast("Opening game rules...")
+        );
+
+        cardStatistics.setOnClickListener(v ->
+            showToast("Loading your statistics...")
+        );
+
+        cardSettings.setOnClickListener(v ->
+            showToast("Opening settings...")
+        );
+    }
+
+    private void showToast(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 }
