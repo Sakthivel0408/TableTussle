@@ -76,9 +76,10 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        cardSettings.setOnClickListener(v ->
-            showToast("Opening settings...")
-        );
+        cardSettings.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+            startActivity(intent);
+        });
     }
 
     private void showToast(String message) {
