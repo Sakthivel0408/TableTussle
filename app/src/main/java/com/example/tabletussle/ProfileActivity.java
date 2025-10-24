@@ -39,6 +39,13 @@ public class ProfileActivity extends AppCompatActivity {
         setupClickListeners();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Reload user data when returning from edit/change password screens
+        loadUserData();
+    }
+
     private void initializeViews() {
         tvUserName = findViewById(R.id.tvUserName);
         tvUserEmail = findViewById(R.id.tvUserEmail);
@@ -77,13 +84,15 @@ public class ProfileActivity extends AppCompatActivity {
 
     private void setupClickListeners() {
         btnEditProfile.setOnClickListener(v -> {
-            Toast.makeText(this, "Edit Profile - Coming Soon!", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(ProfileActivity.this, EditProfileActivity.class);
+            startActivity(intent);
         });
 
         btnLogout.setOnClickListener(v -> handleLogout());
 
         cardChangePassword.setOnClickListener(v -> {
-            Toast.makeText(this, "Change Password - Coming Soon!", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(ProfileActivity.this, ChangePasswordActivity.class);
+            startActivity(intent);
         });
 
         cardNotifications.setOnClickListener(v -> {

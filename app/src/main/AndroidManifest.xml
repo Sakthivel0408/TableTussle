@@ -51,6 +51,18 @@
             android:exported="false"
             android:parentActivityName=".MainActivity"/>
 
+        <!-- Edit Profile Activity -->
+        <activity
+            android:name=".EditProfileActivity"
+            android:exported="false"
+            android:parentActivityName=".ProfileActivity"/>
+
+        <!-- Change Password Activity -->
+        <activity
+            android:name=".ChangePasswordActivity"
+            android:exported="false"
+            android:parentActivityName=".ProfileActivity"/>
+
     </application>
 
 </manifest>
