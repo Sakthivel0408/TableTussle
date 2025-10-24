@@ -117,13 +117,15 @@ public class SettingsActivity extends AppCompatActivity {
         // Privacy
         MaterialCardView cardPrivacy = findViewById(R.id.cardPrivacy);
         cardPrivacy.setOnClickListener(v -> {
-            showToast("Privacy settings - Coming soon!");
+            Intent intent = new Intent(SettingsActivity.this, PrivacyActivity.class);
+            startActivity(intent);
         });
 
         // Help & Support
         MaterialCardView cardHelp = findViewById(R.id.cardHelp);
         cardHelp.setOnClickListener(v -> {
-            showToast("Help & Support - Coming soon!");
+            Intent intent = new Intent(SettingsActivity.this, HelpActivity.class);
+            startActivity(intent);
         });
     }
 
