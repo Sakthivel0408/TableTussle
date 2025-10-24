@@ -85,11 +85,13 @@ public class StatisticsActivity extends AppCompatActivity {
         });
 
         cardFriends.setOnClickListener(v -> {
-            Toast.makeText(this, "Friends - Coming Soon!", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(StatisticsActivity.this, FriendsActivity.class);
+            startActivity(intent);
         });
 
         cardHistory.setOnClickListener(v -> {
-            Toast.makeText(this, "Game History - Coming Soon!", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(StatisticsActivity.this, GameHistoryActivity.class);
+            startActivity(intent);
         });
 
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());

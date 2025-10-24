@@ -51,6 +51,18 @@
             android:exported="false"
             android:parentActivityName=".StatisticsActivity"/>
 
+        <!-- Friends Activity -->
+        <activity
+            android:name=".FriendsActivity"
+            android:exported="false"
+            android:parentActivityName=".StatisticsActivity"/>
+
+        <!-- Game History Activity -->
+        <activity
+            android:name=".GameHistoryActivity"
+            android:exported="false"
+            android:parentActivityName=".StatisticsActivity"/>
+
         <!-- How to Play Activity -->
         <activity
             android:name=".HowToPlayActivity"
