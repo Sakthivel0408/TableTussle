@@ -65,9 +65,10 @@ public class MainActivity extends AppCompatActivity {
             showToast("Join an existing room...")
         );
 
-        cardHowToPlay.setOnClickListener(v ->
-            showToast("Opening game rules...")
-        );
+        cardHowToPlay.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, HowToPlayActivity.class);
+            startActivity(intent);
+        });
 
         cardStatistics.setOnClickListener(v -> {
             // Navigate to Statistics Activity

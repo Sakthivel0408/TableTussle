@@ -45,6 +45,12 @@
             android:exported="false"
             android:parentActivityName=".MainActivity"/>
 
+        <!-- How to Play Activity -->
+        <activity
+            android:name=".HowToPlayActivity"
+            android:exported="false"
+            android:parentActivityName=".MainActivity"/>
+
     </application>
 
 </manifest>
