@@ -1,5 +1,6 @@
 package com.example.tabletussle;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -79,7 +80,8 @@ public class StatisticsActivity extends AppCompatActivity {
 
     private void setupClickListeners() {
         cardAchievements.setOnClickListener(v -> {
-            Toast.makeText(this, "Achievements - Coming Soon!", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(StatisticsActivity.this, AchievementsActivity.class);
+            startActivity(intent);
         });
 
         cardFriends.setOnClickListener(v -> {
