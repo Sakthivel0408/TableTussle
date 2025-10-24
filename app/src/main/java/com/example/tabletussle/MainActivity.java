@@ -1,5 +1,6 @@
 package com.example.tabletussle;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
 
@@ -29,6 +30,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupClickListeners() {
+        // Profile button (top-right)
+        MaterialCardView btnProfile = findViewById(R.id.btnProfile);
+
         // Main action buttons
         MaterialButton btnPlayNow = findViewById(R.id.btnPlayNow);
         MaterialButton btnQuickMatch = findViewById(R.id.btnQuickMatch);
@@ -39,6 +43,11 @@ public class MainActivity extends AppCompatActivity {
         MaterialCardView cardHowToPlay = findViewById(R.id.cardHowToPlay);
         MaterialCardView cardStatistics = findViewById(R.id.cardStatistics);
         MaterialCardView cardSettings = findViewById(R.id.cardSettings);
+
+        btnProfile.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
+            startActivity(intent);
+        });
 
         btnPlayNow.setOnClickListener(v ->
             showToast("Starting game...")
@@ -60,9 +69,11 @@ public class MainActivity extends AppCompatActivity {
             showToast("Opening game rules...")
         );
 
-        cardStatistics.setOnClickListener(v ->
-            showToast("Loading your statistics...")
-        );
+        cardStatistics.setOnClickListener(v -> {
+            // Navigate to Statistics Activity
+            Intent intent = new Intent(MainActivity.this, StatisticsActivity.class);
+            startActivity(intent);
+        });
 
         cardSettings.setOnClickListener(v ->
             showToast("Opening settings...")
