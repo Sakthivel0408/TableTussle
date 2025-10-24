@@ -63,6 +63,24 @@
             android:exported="false"
             android:parentActivityName=".ProfileActivity"/>
 
+        <!-- Notifications Activity -->
+        <activity
+            android:name=".NotificationsActivity"
+            android:exported="false"
+            android:parentActivityName=".ProfileActivity"/>
+
+        <!-- Privacy Activity -->
+        <activity
+            android:name=".PrivacyActivity"
+            android:exported="false"
+            android:parentActivityName=".ProfileActivity"/>
+
+        <!-- Help Activity -->
+        <activity
+            android:name=".HelpActivity"
+            android:exported="false"
+            android:parentActivityName=".ProfileActivity"/>
+
     </application>
 
 </manifest>

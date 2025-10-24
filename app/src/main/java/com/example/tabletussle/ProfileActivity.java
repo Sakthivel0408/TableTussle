@@ -96,15 +96,18 @@ public class ProfileActivity extends AppCompatActivity {
         });
 
         cardNotifications.setOnClickListener(v -> {
-            Toast.makeText(this, "Notification Settings - Coming Soon!", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(ProfileActivity.this, NotificationsActivity.class);
+            startActivity(intent);
         });
 
         cardPrivacy.setOnClickListener(v -> {
-            Toast.makeText(this, "Privacy Settings - Coming Soon!", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(ProfileActivity.this, PrivacyActivity.class);
+            startActivity(intent);
         });
 
         cardHelp.setOnClickListener(v -> {
-            Toast.makeText(this, "Help & Support - Coming Soon!", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(ProfileActivity.this, HelpActivity.class);
+            startActivity(intent);
         });
 
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
