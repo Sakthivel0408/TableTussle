@@ -2,6 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- Camera permission for QR code scanning -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -104,6 +109,38 @@
             android:name=".HelpActivity"
             android:exported="false"
             android:parentActivityName=".ProfileActivity"/>
+
+        <!-- Game Activity -->
+        <activity
+            android:name=".GameActivity"
+            android:exported="false"
+            android:parentActivityName=".MainActivity"
+            android:screenOrientation="portrait"/>
+
+        <!-- Quick Match Activity -->
+        <activity
+            android:name=".QuickMatchActivity"
+            android:exported="false"
+            android:parentActivityName=".MainActivity"/>
+
+        <!-- Create Room Activity -->
+        <activity
+            android:name=".CreateRoomActivity"
+            android:exported="false"
+            android:parentActivityName=".MainActivity"/>
+
+        <!-- Join Room Activity -->
+        <activity
+            android:name=".JoinRoomActivity"
+            android:exported="false"
+            android:parentActivityName=".MainActivity"/>
+
+        <!-- QR Scanner Activity -->
+        <activity
+            android:name=".QRScannerActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:parentActivityName=".JoinRoomActivity"/>
 
     </application>
 

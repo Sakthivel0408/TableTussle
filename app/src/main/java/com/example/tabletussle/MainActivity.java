@@ -49,21 +49,30 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        btnPlayNow.setOnClickListener(v ->
-            showToast("Starting game...")
-        );
+        btnPlayNow.setOnClickListener(v -> {
+            // Start single player game (vs AI)
+            Intent intent = new Intent(MainActivity.this, GameActivity.class);
+            intent.putExtra("GAME_MODE", "single");
+            startActivity(intent);
+        });
 
-        btnQuickMatch.setOnClickListener(v ->
-            showToast("Finding a quick match...")
-        );
+        btnQuickMatch.setOnClickListener(v -> {
+            // Start quick match (matchmaking)
+            Intent intent = new Intent(MainActivity.this, QuickMatchActivity.class);
+            startActivity(intent);
+        });
 
-        btnCreateRoom.setOnClickListener(v ->
-            showToast("Creating a new room...")
-        );
+        btnCreateRoom.setOnClickListener(v -> {
+            // Create a new room
+            Intent intent = new Intent(MainActivity.this, CreateRoomActivity.class);
+            startActivity(intent);
+        });
 
-        btnJoinRoom.setOnClickListener(v ->
-            showToast("Join an existing room...")
-        );
+        btnJoinRoom.setOnClickListener(v -> {
+            // Join an existing room
+            Intent intent = new Intent(MainActivity.this, JoinRoomActivity.class);
+            startActivity(intent);
+        });
 
         cardHowToPlay.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, HowToPlayActivity.class);

@@ -13,4 +13,19 @@
     <color name="text_secondary">#B8B8D1</color>
     <color name="button_primary">#E94560</color>
     <color name="button_secondary">#533483</color>
+
+    <!-- Additional Theme Colors -->
+    <color name="background">#16213E</color>
+    <color name="background_dark">#1A1A2E</color>
+    <color name="primary">#E94560</color>
+    <color name="secondary">#533483</color>
+    <color name="textPrimary">#FFFFFF</color>
+    <color name="textSecondary">#B8B8D1</color>
+    <color name="error">#FF5252</color>
+    <color name="divider">#3D3D5C</color>
+
+    <!-- QR Scanner Colors -->
+    <color name="zxing_custom_possible_result_points">#c0ffbd</color>
+    <color name="zxing_custom_result_view">#b0000000</color>
+    <color name="zxing_custom_viewfinder_mask">#60000000</color>
 </resources>
