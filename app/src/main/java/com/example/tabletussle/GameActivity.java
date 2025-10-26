@@ -344,6 +344,10 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void showGameEndDialog(Boolean player1Won) {
+        android.util.Log.d("GameStats", "====================================");
+        android.util.Log.d("GameStats", "showGameEndDialog called");
+        android.util.Log.d("GameStats", "player1Won = " + player1Won);
+
         // Update statistics in background thread
         updateGameStatistics(player1Won);
 
@@ -379,22 +383,40 @@ public class GameActivity extends AppCompatActivity {
     private void updateGameStatistics(Boolean player1Won) {
         int userId = userSession.getUserId();
 
+        android.util.Log.d("GameStats", "=== updateGameStatistics called ===");
+        android.util.Log.d("GameStats", "player1Won = " + player1Won);
+        android.util.Log.d("GameStats", "userId = " + userId);
+
         // Only track stats for logged-in users
         if (userId == -1) {
+            android.util.Log.d("GameStats", "Skipping stats update - user not logged in");
+            Toast.makeText(this, "Not logged in - stats not saved", Toast.LENGTH_SHORT).show();
             return;
         }
 
         // Run database operations on background thread
         new Thread(() -> {
             try {
+                android.util.Log.d("GameStats", "Starting database operations...");
+
                 // Always increment games played for any game completion
-                userDao.incrementGamesPlayed(userId);
-                android.util.Log.d("GameStats", "Incremented games played for user " + userId);
+                try {
+                    userDao.incrementGamesPlayed(userId);
+                    android.util.Log.d("GameStats", "✓ Incremented games played for user " + userId);
+                } catch (Exception e) {
+                    android.util.Log.e("GameStats", "✗ Failed to increment games played: " + e.getMessage());
+                    throw e;
+                }
 
                 // Increment games won only if player won
                 if (player1Won != null && player1Won) {
-                    userDao.incrementGamesWon(userId);
-                    android.util.Log.d("GameStats", "Incremented games won for user " + userId);
+                    try {
+                        userDao.incrementGamesWon(userId);
+                        android.util.Log.d("GameStats", "✓ Incremented games won for user " + userId);
+                    } catch (Exception e) {
+                        android.util.Log.e("GameStats", "✗ Failed to increment games won: " + e.getMessage());
+                        throw e;
+                    }
                 }
 
                 // Add score points:
@@ -409,16 +431,27 @@ public class GameActivity extends AppCompatActivity {
                 }
 
                 if (scoreToAdd > 0) {
-                    userDao.addScore(userId, scoreToAdd);
-                    android.util.Log.d("GameStats", "Added " + scoreToAdd + " points for user " + userId);
+                    try {
+                        userDao.addScore(userId, scoreToAdd);
+                        android.util.Log.d("GameStats", "✓ Added " + scoreToAdd + " points for user " + userId);
+                    } catch (Exception e) {
+                        android.util.Log.e("GameStats", "✗ Failed to add score: " + e.getMessage());
+                        throw e;
+                    }
                 }
 
                 // Verify the update by reading back the user data
-                User updatedUser = userDao.getUserById(userId);
-                if (updatedUser != null) {
-                    android.util.Log.d("GameStats", "Updated stats - Games: " + updatedUser.getGamesPlayed() +
-                                     ", Wins: " + updatedUser.getGamesWon() +
-                                     ", Score: " + updatedUser.getTotalScore());
+                try {
+                    User updatedUser = userDao.getUserById(userId);
+                    if (updatedUser != null) {
+                        android.util.Log.d("GameStats", "✓ Verified - Games: " + updatedUser.getGamesPlayed() +
+                                         ", Wins: " + updatedUser.getGamesWon() +
+                                         ", Score: " + updatedUser.getTotalScore());
+                    } else {
+                        android.util.Log.e("GameStats", "✗ User not found after update!");
+                    }
+                } catch (Exception e) {
+                    android.util.Log.e("GameStats", "✗ Failed to verify update: " + e.getMessage());
                 }
 
                 // Log the result for debugging
@@ -491,6 +524,62 @@ public class GameActivity extends AppCompatActivity {
             Intent intent = new Intent(GameActivity.this, HowToPlayActivity.class);
             startActivity(intent);
         });
+
+        // DEBUG: Add long press on info button to test stats
+        btnInfo.setOnLongClickListener(v -> {
+            testStatsUpdate();
+            return true;
+        });
+    }
+
+    /**
+     * DEBUG METHOD: Test if database updates are working
+     * Long press the Info button to trigger this
+     */
+    private void testStatsUpdate() {
+        int userId = userSession.getUserId();
+
+        if (userId == -1) {
+            Toast.makeText(this, "DEBUG: Not logged in! userId = -1", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        new Thread(() -> {
+            try {
+                // Read current stats
+                User beforeUser = userDao.getUserById(userId);
+                int gamesBefore = beforeUser != null ? beforeUser.getGamesPlayed() : 0;
+                int winsBefore = beforeUser != null ? beforeUser.getGamesWon() : 0;
+
+                // Update stats
+                userDao.incrementGamesPlayed(userId);
+                userDao.incrementGamesWon(userId);
+                userDao.addScore(userId, 10);
+
+                // Read updated stats
+                User afterUser = userDao.getUserById(userId);
+                int gamesAfter = afterUser != null ? afterUser.getGamesPlayed() : 0;
+                int winsAfter = afterUser != null ? afterUser.getGamesWon() : 0;
+                int scoreAfter = afterUser != null ? afterUser.getTotalScore() : 0;
+
+                runOnUiThread(() -> {
+                    String message = "DEBUG Stats Test:\n" +
+                                   "Before: Games=" + gamesBefore + ", Wins=" + winsBefore + "\n" +
+                                   "After: Games=" + gamesAfter + ", Wins=" + winsAfter + "\n" +
+                                   "Score: " + scoreAfter + "\n" +
+                                   (gamesAfter > gamesBefore ? "✅ UPDATE WORKED!" : "❌ UPDATE FAILED!");
+
+                    Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+                    android.util.Log.d("GameStats", message);
+                });
+
+            } catch (Exception e) {
+                runOnUiThread(() -> {
+                    Toast.makeText(this, "DEBUG ERROR: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                });
+                e.printStackTrace();
+            }
+        }).start();
     }
 
     private void showMenuDialog() {
