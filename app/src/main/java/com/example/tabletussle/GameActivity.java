@@ -181,70 +181,106 @@ public class GameActivity extends AppCompatActivity {
     private void makeAIMove() {
         if (!gameActive) return;
 
-        // Use minimax algorithm for intelligent AI
-        int[] bestMove = findBestMove();
+        // AI difficulty: 70% smart moves, 30% random moves
+        // This makes the AI beatable while still challenging
+        int[] move;
 
-        if (bestMove != null) {
-            makeMove(bestMove[0], bestMove[1], PLAYER_O);
+        // 70% of the time, use intelligent strategy
+        if (random.nextInt(100) < 70) {
+            move = findSmartMove();
+        } else {
+            // 30% of the time, make a random move
+            move = findRandomMove();
+        }
+
+        if (move != null) {
+            makeMove(move[0], move[1], PLAYER_O);
         }
     }
 
-    // Minimax algorithm for AI
-    private int[] findBestMove() {
-        int bestScore = Integer.MIN_VALUE;
-        int[] bestMove = null;
+    /**
+     * AI makes a smart strategic move
+     * Priority: Win > Block > Center > Corner > Random
+     */
+    private int[] findSmartMove() {
+        // 1st Priority: Check if AI can win
+        int[] winMove = findWinningMove(PLAYER_O);
+        if (winMove != null) {
+            android.util.Log.d("GameAI", "AI: Found winning move!");
+            return winMove;
+        }
+
+        // 2nd Priority: Block player from winning
+        int[] blockMove = findWinningMove(PLAYER_X);
+        if (blockMove != null) {
+            android.util.Log.d("GameAI", "AI: Blocking player's winning move");
+            return blockMove;
+        }
+
+        // 3rd Priority: Take center if available
+        if (board[1][1] == null) {
+            android.util.Log.d("GameAI", "AI: Taking center");
+            return new int[]{1, 1};
+        }
+
+        // 4th Priority: Take a corner
+        int[][] corners = {{0,0}, {0,2}, {2,0}, {2,2}};
+        java.util.List<int[]> availableCorners = new java.util.ArrayList<>();
+        for (int[] corner : corners) {
+            if (board[corner[0]][corner[1]] == null) {
+                availableCorners.add(corner);
+            }
+        }
+        if (!availableCorners.isEmpty()) {
+            android.util.Log.d("GameAI", "AI: Taking a corner");
+            return availableCorners.get(random.nextInt(availableCorners.size()));
+        }
+
+        // 5th Priority: Take any available space
+        android.util.Log.d("GameAI", "AI: Taking random available space");
+        return findRandomMove();
+    }
+
+    /**
+     * Find a winning move for the specified player
+     */
+    private int[] findWinningMove(String player) {
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (board[i][j] == null) {
+                    // Try this move
+                    board[i][j] = player;
+                    boolean wins = checkWinner(player);
+                    board[i][j] = null; // Undo move
+
+                    if (wins) {
+                        return new int[]{i, j};
+                    }
+                }
+            }
+        }
+        return null; // No winning move found
+    }
+
+    /**
+     * Make a random move from available spaces
+     */
+    private int[] findRandomMove() {
+        java.util.List<int[]> availableMoves = new java.util.ArrayList<>();
 
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                 if (board[i][j] == null) {
-                    board[i][j] = PLAYER_O;
-                    int score = minimax(0, false);
-                    board[i][j] = null;
-
-                    if (score > bestScore) {
-                        bestScore = score;
-                        bestMove = new int[]{i, j};
-                    }
+                    availableMoves.add(new int[]{i, j});
                 }
             }
         }
 
-        return bestMove;
-    }
-
-    private int minimax(int depth, boolean isMaximizing) {
-        // Check terminal states
-        if (checkWinner(PLAYER_O)) return 10 - depth;
-        if (checkWinner(PLAYER_X)) return depth - 10;
-        if (isBoardFull()) return 0;
-
-        if (isMaximizing) {
-            int bestScore = Integer.MIN_VALUE;
-            for (int i = 0; i < 3; i++) {
-                for (int j = 0; j < 3; j++) {
-                    if (board[i][j] == null) {
-                        board[i][j] = PLAYER_O;
-                        int score = minimax(depth + 1, false);
-                        board[i][j] = null;
-                        bestScore = Math.max(score, bestScore);
-                    }
-                }
-            }
-            return bestScore;
-        } else {
-            int bestScore = Integer.MAX_VALUE;
-            for (int i = 0; i < 3; i++) {
-                for (int j = 0; j < 3; j++) {
-                    if (board[i][j] == null) {
-                        board[i][j] = PLAYER_X;
-                        int score = minimax(depth + 1, true);
-                        board[i][j] = null;
-                        bestScore = Math.min(score, bestScore);
-                    }
-                }
-            }
-            return bestScore;
+        if (!availableMoves.isEmpty()) {
+            return availableMoves.get(random.nextInt(availableMoves.size()));
         }
+
+        return null;
     }
 
     private boolean checkWinner(String player) {
