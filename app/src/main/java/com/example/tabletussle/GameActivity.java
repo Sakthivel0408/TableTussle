@@ -344,13 +344,8 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void showGameEndDialog(Boolean player1Won) {
-        int userId = userSession.getUserId();
-
-        if (userId != -1 && player1Won != null) {
-            // Update user stats
-            int finalScore = player1Won ? player1Score : player2Score;
-            statsManager.recordGameResult(player1Won, finalScore);
-        }
+        // Update statistics in background thread
+        updateGameStatistics(player1Won);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
@@ -375,6 +370,71 @@ public class GameActivity extends AppCompatActivity {
         builder.setNegativeButton("Exit", (dialog, which) -> finish());
         builder.setCancelable(false);
         builder.show();
+    }
+
+    /**
+     * Update game statistics in the database
+     * Runs on background thread to avoid blocking UI
+     */
+    private void updateGameStatistics(Boolean player1Won) {
+        int userId = userSession.getUserId();
+
+        // Only track stats for logged-in users
+        if (userId == -1) {
+            return;
+        }
+
+        // Run database operations on background thread
+        new Thread(() -> {
+            try {
+                // Always increment games played for any game completion
+                userDao.incrementGamesPlayed(userId);
+                android.util.Log.d("GameStats", "Incremented games played for user " + userId);
+
+                // Increment games won only if player won
+                if (player1Won != null && player1Won) {
+                    userDao.incrementGamesWon(userId);
+                    android.util.Log.d("GameStats", "Incremented games won for user " + userId);
+                }
+
+                // Add score points:
+                // Win = 10 points, Draw = 5 points, Loss = 0 points
+                final int scoreToAdd;
+                if (player1Won == null) {
+                    scoreToAdd = 5; // Draw
+                } else if (player1Won) {
+                    scoreToAdd = 10; // Win
+                } else {
+                    scoreToAdd = 0; // Loss
+                }
+
+                if (scoreToAdd > 0) {
+                    userDao.addScore(userId, scoreToAdd);
+                    android.util.Log.d("GameStats", "Added " + scoreToAdd + " points for user " + userId);
+                }
+
+                // Verify the update by reading back the user data
+                User updatedUser = userDao.getUserById(userId);
+                if (updatedUser != null) {
+                    android.util.Log.d("GameStats", "Updated stats - Games: " + updatedUser.getGamesPlayed() +
+                                     ", Wins: " + updatedUser.getGamesWon() +
+                                     ", Score: " + updatedUser.getTotalScore());
+                }
+
+                // Log the result for debugging
+                final String result = player1Won == null ? "Draw" : (player1Won ? "Win" : "Loss");
+                runOnUiThread(() -> {
+                    Toast.makeText(this, "Stats updated: " + result + " (+" + scoreToAdd + " pts)",
+                                   Toast.LENGTH_SHORT).show();
+                });
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                runOnUiThread(() ->
+                    Toast.makeText(this, "Failed to update statistics", Toast.LENGTH_SHORT).show()
+                );
+            }
+        }).start();
     }
 
     private void resetRound() {
@@ -480,11 +540,71 @@ public class GameActivity extends AppCompatActivity {
     private void showQuitConfirmation() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Quit Game");
-        builder.setMessage("Are you sure you want to quit?");
 
-        builder.setPositiveButton("Quit", (dialog, which) -> finish());
+        // Show session summary if user is logged in
+        int userId = userSession.getUserId();
+        String message = "Are you sure you want to quit?";
+
+        if (userId != -1) {
+            message = "Session Summary:\n" +
+                     "Games Played: " + (player1Score + player2Score) + "\n" +
+                     "Your Wins: " + player1Score + "\n" +
+                     "AI Wins: " + player2Score + "\n\n" +
+                     "Are you sure you want to quit?";
+        }
+
+        builder.setMessage(message);
+
+        builder.setPositiveButton("Quit", (dialog, which) -> {
+            // Show final statistics summary before exiting
+            showFinalStatsSummary();
+        });
         builder.setNegativeButton("Cancel", null);
         builder.show();
+    }
+
+    /**
+     * Show final statistics summary when user exits the game
+     */
+    private void showFinalStatsSummary() {
+        int userId = userSession.getUserId();
+
+        if (userId != -1) {
+            new Thread(() -> {
+                try {
+                    User user = userDao.getUserById(userId);
+
+                    runOnUiThread(() -> {
+                        if (user != null) {
+                            int totalGames = user.getGamesPlayed();
+                            int totalWins = user.getGamesWon();
+                            int totalScore = user.getTotalScore();
+                            double winRate = totalGames > 0 ? (totalWins * 100.0 / totalGames) : 0;
+
+                            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                            builder.setTitle("Your Overall Statistics");
+                            builder.setMessage(
+                                "Total Games: " + totalGames + "\n" +
+                                "Total Wins: " + totalWins + "\n" +
+                                "Win Rate: " + String.format("%.1f", winRate) + "%\n" +
+                                "Total Score: " + totalScore + "\n\n" +
+                                "Great playing, " + user.getUsername() + "!"
+                            );
+                            builder.setPositiveButton("OK", (dialog, which) -> finish());
+                            builder.setCancelable(false);
+                            builder.show();
+                        } else {
+                            finish();
+                        }
+                    });
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    runOnUiThread(this::finish);
+                }
+            }).start();
+        } else {
+            finish();
+        }
     }
 
     private void updateScoreDisplay() {

@@ -3,7 +3,6 @@ package com.example.tabletussle;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -36,6 +35,13 @@ public class StatisticsActivity extends AppCompatActivity {
         setupClickListeners();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Reload user data when activity resumes (e.g., returning from game)
+        loadUserData();
+    }
+
     private void initializeViews() {
         tvUserName = findViewById(R.id.tvUserName);
         tvGamesPlayed = findViewById(R.id.tvGamesPlayed);
@@ -51,25 +57,35 @@ public class StatisticsActivity extends AppCompatActivity {
         int userId = userSession.getUserId();
 
         if (userId != -1) {
-            User user = userDao.getUserById(userId);
+            // Load user data on background thread
+            new Thread(() -> {
+                User user = userDao.getUserById(userId);
 
-            if (user != null) {
-                tvUserName.setText(user.getUsername());
-                tvGamesPlayed.setText(String.valueOf(user.getGamesPlayed()));
-                tvGamesWon.setText(String.valueOf(user.getGamesWon()));
-                tvTotalScore.setText(String.valueOf(user.getTotalScore()));
+                runOnUiThread(() -> {
+                    if (user != null) {
+                        tvUserName.setText(user.getUsername());
+                        tvGamesPlayed.setText(String.valueOf(user.getGamesPlayed()));
+                        tvGamesWon.setText(String.valueOf(user.getGamesWon()));
+                        tvTotalScore.setText(String.valueOf(user.getTotalScore()));
 
-                // Calculate win rate
-                if (user.getGamesPlayed() > 0) {
-                    double winRate = (user.getGamesWon() * 100.0) / user.getGamesPlayed();
-                    tvWinRate.setText(String.format("%.1f%%", winRate));
-                } else {
-                    tvWinRate.setText("0%");
-                }
-                return;
-            }
+                        // Calculate win rate
+                        if (user.getGamesPlayed() > 0) {
+                            double winRate = (user.getGamesWon() * 100.0) / user.getGamesPlayed();
+                            tvWinRate.setText(String.format("%.1f%%", winRate));
+                        } else {
+                            tvWinRate.setText("0%");
+                        }
+                    } else {
+                        setGuestUserData();
+                    }
+                });
+            }).start();
+        } else {
+            setGuestUserData();
         }
+    }
 
+    private void setGuestUserData() {
         // Guest user or no data
         tvUserName.setText("Guest Player");
         tvGamesPlayed.setText("0");
