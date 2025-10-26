@@ -34,7 +34,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="How to Play No Thanks!"
+                android:text="How to Play Tic Tac Toe"
                 android:textSize="24sp"
                 android:textStyle="bold"
                 android:textColor="@color/text_primary"
@@ -82,7 +82,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="No Thanks! is a card game where you want to score as few points as possible. The deck contains cards numbered 3-35. Players must decide whether to take a card (and its points) or pay a chip to pass."
+                        android:text="Tic Tac Toe is a classic two-player strategy game played on a 3x3 grid. Players take turns marking spaces with X or O. The first player to get three of their marks in a row (horizontally, vertically, or diagonally) wins the game!"
                         android:textSize="14sp"
                         android:textColor="@color/text_secondary"
                         android:lineSpacingExtra="4dp" />
@@ -116,7 +116,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="• Remove 9 cards randomly from the deck (keep them face-down)"
+                        android:text="• The game is played on a 3x3 grid of empty cells"
                         android:textSize="14sp"
                         android:textColor="@color/text_secondary"
                         android:layout_marginBottom="8dp" />
@@ -124,7 +124,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="• Each player receives chips:\n  - 3-5 players: 11 chips each\n  - 6 players: 9 chips each\n  - 7 players: 7 chips each"
+                        android:text="• Player 1 uses X marks\n• Player 2 (or AI) uses O marks"
                         android:textSize="14sp"
                         android:textColor="@color/text_secondary"
                         android:layout_marginBottom="8dp" />
@@ -132,7 +132,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="• Shuffle the remaining 24 cards and place them face-down"
+                        android:text="• Player X always goes first"
                         android:textSize="14sp"
                         android:textColor="@color/text_secondary" />
                 </LinearLayout>
@@ -165,7 +165,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="On your turn, you have 2 choices:"
+                        android:text="Players take turns making their moves:"
                         android:textSize="14sp"
                         android:textStyle="bold"
                         android:textColor="@color/text_primary"
@@ -174,7 +174,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="1️⃣ Take the Card"
+                        android:text="1️⃣ Choose a Cell"
                         android:textSize="14sp"
                         android:textStyle="bold"
                         android:textColor="@color/accent_gold"
@@ -183,7 +183,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="• Take the face-up card and all chips on it\n• Add them to your collection\n• Reveal the next card from the deck"
+                        android:text="• Tap any empty cell on the 3x3 grid\n• Your mark (X or O) will be placed in that cell\n• You cannot change your move once placed"
                         android:textSize="14sp"
                         android:textColor="@color/text_secondary"
                         android:layout_marginBottom="12dp"
@@ -193,7 +193,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="2️⃣ Say 'No Thanks!'"
+                        android:text="2️⃣ Win the Game"
                         android:textSize="14sp"
                         android:textStyle="bold"
                         android:textColor="@color/accent_gold"
@@ -202,7 +202,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="• Place one of your chips on the card\n• Pass the decision to the next player\n• If you have no chips left, you MUST take the card"
+                        android:text="• Get three of your marks in a row\n• Can be horizontal, vertical, or diagonal\n• The game ends immediately when someone wins"
                         android:textSize="14sp"
                         android:textColor="@color/text_secondary"
                         android:paddingStart="8dp"
@@ -237,7 +237,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="When all cards are taken:"
+                        android:text="The game can end in three ways:"
                         android:textSize="14sp"
                         android:textStyle="bold"
                         android:textColor="@color/text_primary"
@@ -246,7 +246,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="✓ Each card = its face value in points"
+                        android:text="✓ Win: Get three marks in a row = You win! 🎉"
                         android:textSize="14sp"
                         android:textColor="@color/text_secondary"
                         android:layout_marginBottom="6dp" />
@@ -254,7 +254,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="✓ Each chip you have = -1 point"
+                        android:text="✓ Lose: Opponent gets three in a row = They win"
                         android:textSize="14sp"
                         android:textColor="@color/text_secondary"
                         android:layout_marginBottom="6dp" />
@@ -262,7 +262,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="✓ Consecutive cards: Only count the LOWEST card!\n   Example: If you have 8, 9, 10, 11 → only count 8 points"
+                        android:text="✓ Draw: All 9 cells filled with no winner = It's a tie!\n   Example: When the board is full but no one has three in a row"
                         android:textSize="14sp"
                         android:textColor="@color/accent_gold"
                         android:textStyle="bold"
@@ -299,7 +299,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="• Try to build consecutive runs to minimize points"
+                        android:text="• Control the center: The center cell is the most valuable position"
                         android:textSize="14sp"
                         android:textColor="@color/text_secondary"
                         android:layout_marginBottom="6dp" />
@@ -307,7 +307,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="• Save your chips for high-value cards"
+                        android:text="• Block your opponent: Watch for their two-in-a-row and block it"
                         android:textSize="14sp"
                         android:textColor="@color/text_secondary"
                         android:layout_marginBottom="6dp" />
@@ -315,7 +315,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="• Sometimes taking a card with many chips is worth it"
+                        android:text="• Create forks: Try to set up two winning possibilities at once"
                         android:textSize="14sp"
                         android:textColor="@color/text_secondary"
                         android:layout_marginBottom="6dp" />
@@ -323,7 +323,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="• Watch what cards other players are collecting"
+                        android:text="• Take corners: Corner positions give you more winning paths"
                         android:textSize="14sp"
                         android:textColor="@color/text_secondary" />
                 </LinearLayout>
@@ -356,7 +356,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="The player with the LOWEST score wins!"
+                        android:text="First to get THREE IN A ROW wins!"
                         android:textSize="16sp"
                         android:textStyle="bold"
                         android:textColor="@color/text_primary"
@@ -366,7 +366,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Remember: Fewer points = Better!"
+                        android:text="Remember: Think ahead and block your opponent!"
                         android:textSize="14sp"
                         android:textColor="@color/text_secondary"
                         android:gravity="center" />

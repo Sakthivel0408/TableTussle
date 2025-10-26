@@ -83,11 +83,11 @@ public class HelpActivity extends AppCompatActivity {
     private void showAboutDialog() {
         new androidx.appcompat.app.AlertDialog.Builder(this)
             .setTitle("About Table Tussle")
-            .setMessage("Table Tussle - No Thanks Card Game\n\n" +
+            .setMessage("Table Tussle - Tic Tac Toe Game\n\n" +
                     "Version: 1.0.0\n" +
                     "Build: October 2025\n\n" +
-                    "A digital adaptation of the popular card game 'No Thanks!'\n\n" +
-                    "Developed with ❤️ for board game enthusiasts\n\n" +
+                    "A digital adaptation of the classic Tic Tac Toe game with AI opponent!\n\n" +
+                    "Developed with ❤️ for strategy game enthusiasts\n\n" +
                     "© 2025 Table Tussle. All rights reserved.")
             .setPositiveButton("OK", null)
             .setIcon(R.mipmap.ic_launcher)

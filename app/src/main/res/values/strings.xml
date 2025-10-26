@@ -3,7 +3,7 @@
 
     <!-- Home Page Strings -->
     <string name="app_title">Table Tussle</string>
-    <string name="app_tagline">Master the Art of No Thanks!</string>
+    <string name="app_tagline">Master the Art of Tic Tac Toe!</string>
     <string name="play_now">Play Now</string>
     <string name="how_to_play">How to Play</string>
     <string name="statistics">Statistics</string>
@@ -43,4 +43,13 @@
     <string name="edit_profile">Edit Profile</string>
     <string name="logout">Logout</string>
     <string name="view_details">View Details</string>
+
+    <!-- Game Activity Strings -->
+    <string name="menu">Menu</string>
+    <string name="info">Info</string>
+    <string name="player_1">Player 1</string>
+    <string name="player_2">Player 2</string>
+    <string name="zero">0</string>
+    <string name="player_turn">Player 1\'s Turn</string>
+
 </resources>

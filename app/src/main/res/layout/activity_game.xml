@@ -28,9 +28,9 @@
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Menu"
+                android:contentDescription="@string/menu"
                 android:src="@drawable/ic_menu"
-                android:tint="@color/primary" />
+                app:tint="@color/primary" />
 
             <Space
                 android:layout_width="0dp"
@@ -42,9 +42,9 @@
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Info"
+                android:contentDescription="@string/info"
                 android:src="@drawable/ic_info"
-                android:tint="@color/primary" />
+                app:tint="@color/primary" />
 
         </LinearLayout>
 
@@ -74,7 +74,7 @@
                 android:id="@+id/tvPlayer1Name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Player 1"
+                android:text="@string/player_1"
                 android:textColor="@color/textPrimary"
                 android:textSize="16sp"
                 android:textStyle="bold" />
@@ -84,7 +84,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="0"
+                android:text="@string/zero"
                 android:textColor="@color/primary"
                 android:textSize="32sp"
                 android:textStyle="bold" />
@@ -117,7 +117,7 @@
                 android:id="@+id/tvPlayer2Name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Player 2"
+                android:text="@string/player_2"
                 android:textColor="@color/textPrimary"
                 android:textSize="16sp"
                 android:textStyle="bold" />
@@ -127,7 +127,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="0"
+                android:text="@string/zero"
                 android:textColor="@color/secondary"
                 android:textSize="32sp"
                 android:textStyle="bold" />
@@ -149,31 +149,155 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/player1Card">
 
-        <LinearLayout
+        <GridLayout
+            android:id="@+id/gameBoard"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
-            android:orientation="vertical"
-            android:padding="24dp">
+            android:layout_gravity="center"
+            android:columnCount="3"
+            android:rowCount="3"
+            android:padding="16dp">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Game Board"
-                android:textColor="@color/textSecondary"
-                android:textSize="18sp"
-                android:textStyle="bold" />
+            <!-- Row 1 -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/cell_0_0"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_rowWeight="1"
+                android:layout_columnWeight="1"
+                android:layout_margin="4dp"
+                android:backgroundTint="@color/cardBackground"
+                android:textColor="@color/primary"
+                android:textSize="48sp"
+                android:textStyle="bold"
+                app:cornerRadius="12dp"
+                app:strokeColor="@color/cardStroke"
+                app:strokeWidth="2dp" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="Game interface will be implemented here"
-                android:textAlignment="center"
-                android:textColor="@color/textSecondary"
-                android:textSize="14sp" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/cell_0_1"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_rowWeight="1"
+                android:layout_columnWeight="1"
+                android:layout_margin="4dp"
+                android:backgroundTint="@color/cardBackground"
+                android:textColor="@color/primary"
+                android:textSize="48sp"
+                android:textStyle="bold"
+                app:cornerRadius="12dp"
+                app:strokeColor="@color/cardStroke"
+                app:strokeWidth="2dp" />
 
-        </LinearLayout>
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/cell_0_2"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_rowWeight="1"
+                android:layout_columnWeight="1"
+                android:layout_margin="4dp"
+                android:backgroundTint="@color/cardBackground"
+                android:textColor="@color/primary"
+                android:textSize="48sp"
+                android:textStyle="bold"
+                app:cornerRadius="12dp"
+                app:strokeColor="@color/cardStroke"
+                app:strokeWidth="2dp" />
+
+            <!-- Row 2 -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/cell_1_0"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_rowWeight="1"
+                android:layout_columnWeight="1"
+                android:layout_margin="4dp"
+                android:backgroundTint="@color/cardBackground"
+                android:textColor="@color/primary"
+                android:textSize="48sp"
+                android:textStyle="bold"
+                app:cornerRadius="12dp"
+                app:strokeColor="@color/cardStroke"
+                app:strokeWidth="2dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/cell_1_1"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_rowWeight="1"
+                android:layout_columnWeight="1"
+                android:layout_margin="4dp"
+                android:backgroundTint="@color/cardBackground"
+                android:textColor="@color/primary"
+                android:textSize="48sp"
+                android:textStyle="bold"
+                app:cornerRadius="12dp"
+                app:strokeColor="@color/cardStroke"
+                app:strokeWidth="2dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/cell_1_2"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_rowWeight="1"
+                android:layout_columnWeight="1"
+                android:layout_margin="4dp"
+                android:backgroundTint="@color/cardBackground"
+                android:textColor="@color/primary"
+                android:textSize="48sp"
+                android:textStyle="bold"
+                app:cornerRadius="12dp"
+                app:strokeColor="@color/cardStroke"
+                app:strokeWidth="2dp" />
+
+            <!-- Row 3 -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/cell_2_0"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_rowWeight="1"
+                android:layout_columnWeight="1"
+                android:layout_margin="4dp"
+                android:backgroundTint="@color/cardBackground"
+                android:textColor="@color/primary"
+                android:textSize="48sp"
+                android:textStyle="bold"
+                app:cornerRadius="12dp"
+                app:strokeColor="@color/cardStroke"
+                app:strokeWidth="2dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/cell_2_1"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_rowWeight="1"
+                android:layout_columnWeight="1"
+                android:layout_margin="4dp"
+                android:backgroundTint="@color/cardBackground"
+                android:textColor="@color/primary"
+                android:textSize="48sp"
+                android:textStyle="bold"
+                app:cornerRadius="12dp"
+                app:strokeColor="@color/cardStroke"
+                app:strokeWidth="2dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/cell_2_2"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_rowWeight="1"
+                android:layout_columnWeight="1"
+                android:layout_margin="4dp"
+                android:backgroundTint="@color/cardBackground"
+                android:textColor="@color/primary"
+                android:textSize="48sp"
+                android:textStyle="bold"
+                app:cornerRadius="12dp"
+                app:strokeColor="@color/cardStroke"
+                app:strokeWidth="2dp" />
+
+        </GridLayout>
 
     </com.google.android.material.card.MaterialCardView>
 
@@ -189,25 +313,17 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
-        <LinearLayout
+        <TextView
+            android:id="@+id/tvCurrentTurn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:orientation="vertical"
-            android:padding="16dp">
-
-            <TextView
-                android:id="@+id/tvCurrentTurn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Player 1's Turn"
-                android:textColor="@color/primary"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-        </LinearLayout>
+            android:padding="16dp"
+            android:text="@string/player_turn"
+            android:textColor="@color/primary"
+            android:textSize="18sp"
+            android:textStyle="bold" />
 
     </com.google.android.material.card.MaterialCardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
-
