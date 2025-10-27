@@ -39,6 +39,10 @@ public class SettingsActivity extends AppCompatActivity {
 
         sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
 
+        // Apply current dark mode setting before loading UI
+        boolean isDarkMode = sharedPreferences.getBoolean(KEY_DARK_MODE, true);
+        applyDarkMode(isDarkMode);
+
         initializeViews();
         loadSettings();
         setupClickListeners();
