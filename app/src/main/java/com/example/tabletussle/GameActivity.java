@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -18,6 +19,9 @@ import com.example.tabletussle.database.GameStatsManager;
 import com.example.tabletussle.database.User;
 import com.example.tabletussle.database.UserDao;
 import com.example.tabletussle.database.UserSession;
+import com.example.tabletussle.managers.SoundManager;
+import com.example.tabletussle.managers.VibrationManager;
+import com.example.tabletussle.managers.AnimationManager;
 import com.google.android.material.button.MaterialButton;
 
 import java.util.ArrayList;
@@ -47,6 +51,11 @@ public class GameActivity extends AppCompatActivity {
     private UserDao userDao;
     private GameStatsManager statsManager;
 
+    // Feature managers
+    private SoundManager soundManager;
+    private VibrationManager vibrationManager;
+    private AnimationManager animationManager;
+
     private String gameMode; // "single", "quick", "room"
     private String roomCode;
     private int player1Score = 0;
@@ -65,6 +74,11 @@ public class GameActivity extends AppCompatActivity {
         userDao = database.userDao();
         userSession = new UserSession(this);
         statsManager = new GameStatsManager(this);
+
+        // Initialize feature managers
+        soundManager = SoundManager.getInstance(this);
+        vibrationManager = VibrationManager.getInstance(this);
+        animationManager = AnimationManager.getInstance(this);
 
         // Get game mode from intent
         Intent intent = getIntent();
@@ -135,8 +149,18 @@ public class GameActivity extends AppCompatActivity {
 
     private void onCellClicked(int row, int col) {
         if (!gameActive || board[row][col] != null || currentPlayer != PLAYER_X) {
+            // Play error sound and shake animation for invalid move
+            if (board[row][col] != null) {
+                soundManager.playSound(SoundManager.SoundEffect.CLICK);
+                vibrationManager.vibrate(VibrationManager.VibrationType.LIGHT);
+                animationManager.animateShake(cells[row][col]);
+            }
             return; // Invalid move
         }
+
+        // Play sound and vibration for valid move
+        soundManager.playSound(SoundManager.SoundEffect.MOVE);
+        vibrationManager.vibrate(VibrationManager.VibrationType.MEDIUM);
 
         makeMove(row, col, PLAYER_X);
 
@@ -153,6 +177,9 @@ public class GameActivity extends AppCompatActivity {
     private void makeMove(int row, int col, String player) {
         board[row][col] = player;
         cells[row][col].setText(player);
+
+        // Animate the cell fill
+        animationManager.animateCellFill(cells[row][col]);
 
         // Style the cell based on player
         if (player.equals(PLAYER_X)) {
@@ -324,11 +351,20 @@ public class GameActivity extends AppCompatActivity {
 
     private void highlightWinningCells(int[][] winningCells) {
         int highlightColor = ContextCompat.getColor(this, R.color.accent);
-        for (int[] cell : winningCells) {
+
+        // Create array of views for animation
+        View[] winningViews = new View[winningCells.length];
+
+        for (int i = 0; i < winningCells.length; i++) {
+            int[] cell = winningCells[i];
             cells[cell[0]][cell[1]].setBackgroundTintList(
                 android.content.res.ColorStateList.valueOf(highlightColor)
             );
+            winningViews[i] = cells[cell[0]][cell[1]];
         }
+
+        // Animate winning cells
+        animationManager.animateWinningCells(winningViews);
     }
 
     private boolean isBoardFull() {
@@ -365,16 +401,24 @@ public class GameActivity extends AppCompatActivity {
 
         if (winner != null) {
             if (winner.equals(PLAYER_X)) {
+                // Player wins
+                soundManager.playSound(SoundManager.SoundEffect.WIN);
+                vibrationManager.vibrate(VibrationManager.VibrationType.SUCCESS);
                 player1Score++;
                 updateScoreDisplay();
                 handler.postDelayed(() -> showGameEndDialog(true), 800);
             } else {
+                // AI wins
+                soundManager.playSound(SoundManager.SoundEffect.LOSE);
+                vibrationManager.vibrate(VibrationManager.VibrationType.ERROR);
                 player2Score++;
                 updateScoreDisplay();
                 handler.postDelayed(() -> showGameEndDialog(false), 800);
             }
         } else {
             // Draw
+            soundManager.playSound(SoundManager.SoundEffect.DRAW);
+            vibrationManager.vibrate(VibrationManager.VibrationType.MEDIUM);
             handler.postDelayed(() -> showGameEndDialog(null), 800);
         }
     }
@@ -742,6 +786,43 @@ public class GameActivity extends AppCompatActivity {
             tvCurrentTurn.setText(tvPlayer1Name.getText() + "'s Turn");
         } else {
             tvCurrentTurn.setText(tvPlayer2Name.getText() + "'s Turn");
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Resume background music when activity comes to foreground
+        if (soundManager != null) {
+            soundManager.updateSettings();
+            soundManager.resumeBackgroundMusic();
+        }
+        if (vibrationManager != null) {
+            vibrationManager.updateSettings();
+        }
+        if (animationManager != null) {
+            animationManager.updateSettings();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // Pause background music when activity goes to background
+        if (soundManager != null) {
+            soundManager.pauseBackgroundMusic();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // Clean up resources
+        if (soundManager != null) {
+            soundManager.stopBackgroundMusic();
+        }
+        if (vibrationManager != null) {
+            vibrationManager.cancel();
         }
     }
 }

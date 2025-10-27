@@ -10,6 +10,9 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 
+import com.example.tabletussle.managers.SoundManager;
+import com.example.tabletussle.managers.VibrationManager;
+import com.example.tabletussle.managers.AnimationManager;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 
@@ -17,6 +20,11 @@ public class SettingsActivity extends AppCompatActivity {
 
     private SharedPreferences sharedPreferences;
     private static final String PREFS_NAME = "TableTussleSettings";
+
+    // Manager instances
+    private SoundManager soundManager;
+    private VibrationManager vibrationManager;
+    private AnimationManager animationManager;
 
     // Settings keys
     private static final String KEY_SOUND_EFFECTS = "sound_effects";
@@ -38,6 +46,11 @@ public class SettingsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_settings);
 
         sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+
+        // Initialize managers
+        soundManager = SoundManager.getInstance(this);
+        vibrationManager = VibrationManager.getInstance(this);
+        animationManager = AnimationManager.getInstance(this);
 
         // Apply current dark mode setting before loading UI
         boolean isDarkMode = sharedPreferences.getBoolean(KEY_DARK_MODE, true);
@@ -83,18 +96,27 @@ public class SettingsActivity extends AppCompatActivity {
         // Sound Effects
         switchSoundEffects.setOnCheckedChangeListener((buttonView, isChecked) -> {
             saveSetting(KEY_SOUND_EFFECTS, isChecked);
+            soundManager.setSoundEffectsEnabled(isChecked);
+            if (isChecked) {
+                soundManager.playSound(SoundManager.SoundEffect.CLICK);
+            }
             showToast(isChecked ? "Sound effects enabled" : "Sound effects disabled");
         });
 
         // Background Music
         switchBackgroundMusic.setOnCheckedChangeListener((buttonView, isChecked) -> {
             saveSetting(KEY_BACKGROUND_MUSIC, isChecked);
+            soundManager.setBackgroundMusicEnabled(isChecked);
             showToast(isChecked ? "Background music enabled" : "Background music disabled");
         });
 
         // Vibration
         switchVibration.setOnCheckedChangeListener((buttonView, isChecked) -> {
             saveSetting(KEY_VIBRATION, isChecked);
+            vibrationManager.setVibrationEnabled(isChecked);
+            if (isChecked) {
+                vibrationManager.vibrate(VibrationManager.VibrationType.MEDIUM);
+            }
             showToast(isChecked ? "Vibration enabled" : "Vibration disabled");
         });
 
@@ -108,6 +130,7 @@ public class SettingsActivity extends AppCompatActivity {
         // Animations
         switchAnimations.setOnCheckedChangeListener((buttonView, isChecked) -> {
             saveSetting(KEY_ANIMATIONS, isChecked);
+            animationManager.setAnimationsEnabled(isChecked);
             showToast(isChecked ? "Animations enabled" : "Animations disabled");
         });
 
