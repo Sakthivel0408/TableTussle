@@ -3,30 +3,32 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
-    <!-- Board Game Theme Colors -->
-    <color name="primary_dark">#1A1A2E</color>
-    <color name="primary_medium">#16213E</color>
+    <!-- Light Theme Colors -->
+    <color name="primary_dark">#E8F1F5</color>
+    <color name="primary_medium">#F5F9FC</color>
     <color name="accent_gold">#E94560</color>
-    <color name="accent_light">#0F3460</color>
-    <color name="card_background">#252A48</color>
-    <color name="text_primary">#FFFFFF</color>
-    <color name="text_secondary">#B8B8D1</color>
+    <color name="accent_light">#E3F2FD</color>
+    <color name="card_background">#FFFFFF</color>
+    <color name="text_primary">#1A1A2E</color>
+    <color name="text_secondary">#5E5E7A</color>
     <color name="button_primary">#E94560</color>
     <color name="button_secondary">#533483</color>
 
-    <!-- Additional Theme Colors -->
-    <color name="background">#16213E</color>
-    <color name="background_dark">#1A1A2E</color>
+    <!-- Additional Light Theme Colors -->
+    <color name="background">#F5F9FC</color>
+    <color name="background_dark">#E8F1F5</color>
     <color name="primary">#E94560</color>
     <color name="secondary">#533483</color>
     <color name="accent">#FFD700</color>
-    <color name="textPrimary">#FFFFFF</color>
-    <color name="textSecondary">#B8B8D1</color>
-    <color name="error">#FF5252</color>
-    <color name="divider">#3D3D5C</color>
 
-    <color name="cardBackground">#252A48</color>
-    <color name="cardStroke">#3D3D5C</color>
+    <!-- CamelCase aliases for compatibility -->
+    <color name="textPrimary">#1A1A2E</color>
+    <color name="textSecondary">#5E5E7A</color>
+    <color name="error">#D32F2F</color>
+    <color name="divider">#E0E0E0</color>
+
+    <color name="cardBackground">#FFFFFF</color>
+    <color name="cardStroke">#E0E0E0</color>
     <color name="zxing_custom_result_view">#b0000000</color>
     <color name="zxing_custom_viewfinder_mask">#60000000</color>
 </resources>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dark Theme Colors -->
+    <color name="primary_dark">#0D0D1A</color>
+    <color name="primary_medium">#16213E</color>
+    <color name="accent_gold">#FF6B85</color>
+    <color name="accent_light">#1A2F4F</color>
+    <color name="card_background">#1E2A3E</color>
+    <color name="text_primary">#FFFFFF</color>
+    <color name="text_secondary">#B8B8D1</color>
+    <color name="button_primary">#E94560</color>
+    <color name="button_secondary">#6B4FA0</color>
+
+    <!-- Additional Dark Theme Colors -->
+    <color name="background">#0D0D1A</color>
+    <color name="background_dark">#060610</color>
+    <color name="primary">#E94560</color>
+    <color name="secondary">#6B4FA0</color>
+    <color name="accent">#FFD700</color>
+
+    <!-- CamelCase aliases for compatibility -->
+    <color name="textPrimary">#FFFFFF</color>
+    <color name="textSecondary">#B8B8D1</color>
+    <color name="error">#FF5252</color>
+    <color name="divider">#2D3D5C</color>
+
+    <color name="cardBackground">#1E2A3E</color>
+    <color name="cardStroke">#2D3D5C</color>
+</resources>
+
