@@ -30,7 +30,10 @@ public class SoundManager {
     private MediaPlayer backgroundMusicPlayer;
     private Map<String, Integer> soundEffects;
     private ToneGenerator toneGenerator;
+    private ToneGenerator musicGenerator;
     private AudioManager audioManager;
+    private Thread musicThread;
+    private volatile boolean isMusicPlaying = false;
 
     private boolean soundEffectsEnabled;
     private boolean backgroundMusicEnabled;
@@ -187,28 +190,80 @@ public class SoundManager {
     }
 
     /**
-     * Start background music (simple implementation)
+     * Start background music (synthesized melody)
      */
     public void startBackgroundMusic() {
-        if (!backgroundMusicEnabled || backgroundMusicPlayer != null) {
-            Log.d(TAG, "Background music not started. Enabled: " + backgroundMusicEnabled + ", Player exists: " + (backgroundMusicPlayer != null));
+        if (!backgroundMusicEnabled || isMusicPlaying) {
+            Log.d(TAG, "Background music not started. Enabled: " + backgroundMusicEnabled + ", Already playing: " + isMusicPlaying);
             return;
         }
 
         try {
-            // For now, we'll skip background music as we don't have audio files
-            // In a real implementation:
-            // backgroundMusicPlayer = MediaPlayer.create(context, R.raw.background_music);
-            // if (backgroundMusicPlayer != null) {
-            //     backgroundMusicPlayer.setLooping(true);
-            //     backgroundMusicPlayer.setVolume(0.3f, 0.3f); // 30% volume
-            //     backgroundMusicPlayer.start();
-            //     Log.d(TAG, "Background music started");
-            // }
+            // Create a separate ToneGenerator for music with lower volume
+            if (musicGenerator == null) {
+                int musicVolume = ToneGenerator.MAX_VOLUME - 60; // 40% volume (quieter than SFX)
+                musicGenerator = new ToneGenerator(AudioManager.STREAM_MUSIC, musicVolume);
+                Log.d(TAG, "Music ToneGenerator initialized with volume: " + musicVolume);
+            }
 
-            Log.d(TAG, "Background music disabled (no audio file)");
+            // Start background music thread with a pleasant melody pattern
+            isMusicPlaying = true;
+            musicThread = new Thread(() -> {
+                Log.d(TAG, "Background music thread started");
+
+                // Melody pattern - a simple pleasant tune
+                // Using DTMF tones which sound more musical
+                int[] melodyPattern = {
+                    ToneGenerator.TONE_DTMF_1,  // C
+                    ToneGenerator.TONE_DTMF_3,  // E
+                    ToneGenerator.TONE_DTMF_5,  // G
+                    ToneGenerator.TONE_DTMF_3,  // E
+                    ToneGenerator.TONE_DTMF_6,  // A
+                    ToneGenerator.TONE_DTMF_5,  // G
+                    ToneGenerator.TONE_DTMF_3,  // E
+                    ToneGenerator.TONE_DTMF_1,  // C
+                };
+
+                int[] durations = {400, 400, 400, 400, 400, 400, 400, 600}; // milliseconds
+
+                try {
+                    while (isMusicPlaying && backgroundMusicEnabled) {
+                        // Check if device is not in silent mode
+                        if (audioManager != null) {
+                            int ringerMode = audioManager.getRingerMode();
+                            if (ringerMode == AudioManager.RINGER_MODE_SILENT) {
+                                Thread.sleep(1000); // Wait and check again
+                                continue;
+                            }
+                        }
+
+                        // Play the melody
+                        for (int i = 0; i < melodyPattern.length && isMusicPlaying; i++) {
+                            if (musicGenerator != null) {
+                                musicGenerator.startTone(melodyPattern[i], durations[i]);
+                                Thread.sleep(durations[i] + 100); // Add small gap between notes
+                            }
+                        }
+
+                        // Pause between melody repetitions
+                        Thread.sleep(800);
+                    }
+                } catch (InterruptedException e) {
+                    Log.d(TAG, "Background music thread interrupted");
+                } catch (Exception e) {
+                    Log.e(TAG, "Error in background music playback: " + e.getMessage());
+                }
+
+                Log.d(TAG, "Background music thread stopped");
+            });
+
+            musicThread.setDaemon(true);
+            musicThread.start();
+            Log.d(TAG, "Background music started (synthesized melody)");
+
         } catch (Exception e) {
             Log.e(TAG, "Error starting background music: " + e.getMessage());
+            isMusicPlaying = false;
         }
     }
 
@@ -216,6 +271,29 @@ public class SoundManager {
      * Stop background music
      */
     public void stopBackgroundMusic() {
+        Log.d(TAG, "Stopping background music");
+        isMusicPlaying = false;
+
+        if (musicThread != null) {
+            try {
+                musicThread.interrupt();
+                musicThread = null;
+            } catch (Exception e) {
+                Log.e(TAG, "Error stopping music thread: " + e.getMessage());
+            }
+        }
+
+        if (musicGenerator != null) {
+            try {
+                musicGenerator.release();
+                musicGenerator = null;
+                Log.d(TAG, "Music ToneGenerator released");
+            } catch (Exception e) {
+                Log.e(TAG, "Error releasing music generator: " + e.getMessage());
+            }
+        }
+
+        // Keep this for compatibility if we add MediaPlayer later
         if (backgroundMusicPlayer != null) {
             try {
                 if (backgroundMusicPlayer.isPlaying()) {
@@ -223,21 +301,37 @@ public class SoundManager {
                 }
                 backgroundMusicPlayer.release();
                 backgroundMusicPlayer = null;
-                Log.d(TAG, "Background music stopped");
             } catch (Exception e) {
-                Log.e(TAG, "Error stopping background music: " + e.getMessage());
+                Log.e(TAG, "Error stopping media player: " + e.getMessage());
             }
         }
+
+        Log.d(TAG, "Background music stopped");
     }
 
     /**
      * Pause background music
      */
     public void pauseBackgroundMusic() {
+        if (isMusicPlaying) {
+            Log.d(TAG, "Pausing background music");
+            isMusicPlaying = false;
+
+            if (musicThread != null) {
+                try {
+                    musicThread.interrupt();
+                    musicThread = null;
+                } catch (Exception e) {
+                    Log.e(TAG, "Error pausing music thread: " + e.getMessage());
+                }
+            }
+        }
+
+        // Keep this for compatibility
         if (backgroundMusicPlayer != null && backgroundMusicPlayer.isPlaying()) {
             try {
                 backgroundMusicPlayer.pause();
-                Log.d(TAG, "Background music paused");
+                Log.d(TAG, "MediaPlayer paused");
             } catch (Exception e) {
                 Log.e(TAG, "Error pausing background music: " + e.getMessage());
             }
@@ -248,15 +342,19 @@ public class SoundManager {
      * Resume background music
      */
     public void resumeBackgroundMusic() {
+        if (backgroundMusicEnabled && !isMusicPlaying) {
+            Log.d(TAG, "Resuming background music");
+            startBackgroundMusic();
+        }
+
+        // Keep this for compatibility
         if (backgroundMusicPlayer != null && backgroundMusicEnabled) {
             try {
                 backgroundMusicPlayer.start();
-                Log.d(TAG, "Background music resumed");
+                Log.d(TAG, "MediaPlayer resumed");
             } catch (Exception e) {
                 Log.e(TAG, "Error resuming background music: " + e.getMessage());
             }
-        } else if (backgroundMusicEnabled && backgroundMusicPlayer == null) {
-            startBackgroundMusic();
         }
     }
 
@@ -309,7 +407,9 @@ public class SoundManager {
         if (!enabled) {
             stopBackgroundMusic();
         } else {
-            startBackgroundMusic();
+            if (!isMusicPlaying) {
+                startBackgroundMusic();
+            }
         }
     }
 
@@ -333,6 +433,9 @@ public class SoundManager {
     public void release() {
         Log.d(TAG, "Releasing SoundManager resources");
 
+        // Stop background music
+        stopBackgroundMusic();
+
         if (toneGenerator != null) {
             toneGenerator.release();
             toneGenerator = null;
@@ -343,7 +446,6 @@ public class SoundManager {
             soundPool = null;
         }
 
-        stopBackgroundMusic();
         isInitialized = false;
     }
 }
