@@ -38,6 +38,9 @@ public class MainActivity extends AppCompatActivity {
         vibrationManager = VibrationManager.getInstance(this);
         animationManager = AnimationManager.getInstance(this);
 
+        // Start background music if enabled
+        soundManager.startBackgroundMusic();
+
         setupClickListeners();
     }
 
@@ -137,6 +140,7 @@ public class MainActivity extends AppCompatActivity {
         // Update settings when returning to main activity
         if (soundManager != null) {
             soundManager.updateSettings();
+            soundManager.resumeBackgroundMusic();
         }
         if (vibrationManager != null) {
             vibrationManager.updateSettings();
@@ -144,5 +148,20 @@ public class MainActivity extends AppCompatActivity {
         if (animationManager != null) {
             animationManager.updateSettings();
         }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // Pause background music when activity goes to background
+        if (soundManager != null) {
+            soundManager.pauseBackgroundMusic();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // Don't release sound manager here as it's a singleton used across activities
     }
 }

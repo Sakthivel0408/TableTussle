@@ -80,6 +80,13 @@ public class GameActivity extends AppCompatActivity {
         vibrationManager = VibrationManager.getInstance(this);
         animationManager = AnimationManager.getInstance(this);
 
+        // Update settings and start background music
+        soundManager.updateSettings();
+        soundManager.startBackgroundMusic();
+
+        android.util.Log.d("GameActivity", "Sound effects enabled: " + soundManager.isSoundEffectsEnabled());
+        android.util.Log.d("GameActivity", "Background music enabled: " + soundManager.isBackgroundMusicEnabled());
+
         // Get game mode from intent
         Intent intent = getIntent();
         gameMode = intent.getStringExtra("GAME_MODE");

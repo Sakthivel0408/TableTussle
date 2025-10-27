@@ -3,8 +3,11 @@ package com.example.tabletussle.managers;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.media.AudioAttributes;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.SoundPool;
+import android.media.ToneGenerator;
+import android.os.Build;
 import android.util.Log;
 
 import java.util.HashMap;
@@ -26,9 +29,12 @@ public class SoundManager {
     private SoundPool soundPool;
     private MediaPlayer backgroundMusicPlayer;
     private Map<String, Integer> soundEffects;
+    private ToneGenerator toneGenerator;
+    private AudioManager audioManager;
 
     private boolean soundEffectsEnabled;
     private boolean backgroundMusicEnabled;
+    private boolean isInitialized = false;
 
     public enum SoundEffect {
         CLICK,
@@ -41,6 +47,7 @@ public class SoundManager {
     private SoundManager(Context context) {
         this.context = context.getApplicationContext();
         this.sharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        this.audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
 
         // Load preferences
         soundEffectsEnabled = sharedPreferences.getBoolean(KEY_SOUND_EFFECTS, true);
@@ -48,6 +55,10 @@ public class SoundManager {
 
         initializeSoundPool();
         loadSoundEffects();
+        initializeToneGenerator();
+
+        isInitialized = true;
+        Log.d(TAG, "SoundManager initialized - SFX: " + soundEffectsEnabled + ", Music: " + backgroundMusicEnabled);
     }
 
     public static synchronized SoundManager getInstance(Context context) {
@@ -58,17 +69,34 @@ public class SoundManager {
     }
 
     private void initializeSoundPool() {
-        AudioAttributes audioAttributes = new AudioAttributes.Builder()
-                .setUsage(AudioAttributes.USAGE_GAME)
-                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                .build();
+        try {
+            AudioAttributes audioAttributes = new AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_GAME)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                    .build();
 
-        soundPool = new SoundPool.Builder()
-                .setMaxStreams(5)
-                .setAudioAttributes(audioAttributes)
-                .build();
+            soundPool = new SoundPool.Builder()
+                    .setMaxStreams(5)
+                    .setAudioAttributes(audioAttributes)
+                    .build();
 
-        soundEffects = new HashMap<>();
+            soundEffects = new HashMap<>();
+            Log.d(TAG, "SoundPool initialized");
+        } catch (Exception e) {
+            Log.e(TAG, "Error initializing SoundPool: " + e.getMessage());
+        }
+    }
+
+    private void initializeToneGenerator() {
+        try {
+            // Initialize with a reasonable volume
+            int volume = ToneGenerator.MAX_VOLUME - 20; // 80% volume
+            toneGenerator = new ToneGenerator(AudioManager.STREAM_MUSIC, volume);
+            Log.d(TAG, "ToneGenerator initialized with volume: " + volume);
+        } catch (Exception e) {
+            Log.e(TAG, "Error initializing ToneGenerator: " + e.getMessage());
+            toneGenerator = null;
+        }
     }
 
     /**
@@ -86,7 +114,7 @@ public class SoundManager {
             // soundEffects.put("MOVE", soundPool.load(context, R.raw.move_sound, 1));
             // etc.
 
-            Log.d(TAG, "Sound effects loaded (using system sounds)");
+            Log.d(TAG, "Sound effects loaded (using tone generator)");
         } catch (Exception e) {
             Log.e(TAG, "Error loading sound effects: " + e.getMessage());
         }
@@ -96,39 +124,65 @@ public class SoundManager {
      * Play a sound effect
      */
     public void playSound(SoundEffect effect) {
-        if (!soundEffectsEnabled) {
+        if (!isInitialized || !soundEffectsEnabled) {
+            Log.d(TAG, "Sound disabled or not initialized. Enabled: " + soundEffectsEnabled + ", Init: " + isInitialized);
             return;
         }
 
-        try {
-            // Simple beep using ToneGenerator as placeholder
-            android.media.ToneGenerator toneGen = new android.media.ToneGenerator(
-                    android.media.AudioManager.STREAM_MUSIC, 50);
+        // Check if audio is not muted
+        if (audioManager != null) {
+            int ringerMode = audioManager.getRingerMode();
+            if (ringerMode == AudioManager.RINGER_MODE_SILENT) {
+                Log.d(TAG, "Device is in silent mode, skipping sound");
+                return;
+            }
+        }
 
-            switch (effect) {
-                case CLICK:
-                    toneGen.startTone(android.media.ToneGenerator.TONE_PROP_BEEP, 50);
-                    break;
-                case MOVE:
-                    toneGen.startTone(android.media.ToneGenerator.TONE_PROP_ACK, 100);
-                    break;
-                case WIN:
-                    toneGen.startTone(android.media.ToneGenerator.TONE_CDMA_ALERT_CALL_GUARD, 200);
-                    break;
-                case LOSE:
-                    toneGen.startTone(android.media.ToneGenerator.TONE_CDMA_ABBR_ALERT, 200);
-                    break;
-                case DRAW:
-                    toneGen.startTone(android.media.ToneGenerator.TONE_PROP_NACK, 150);
-                    break;
+        try {
+            if (toneGenerator == null) {
+                initializeToneGenerator();
             }
 
-            // Release tone generator after a delay
-            new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(
-                    toneGen::release, 300);
+            if (toneGenerator != null) {
+                int toneType;
+                int duration;
+
+                switch (effect) {
+                    case CLICK:
+                        toneType = ToneGenerator.TONE_PROP_BEEP;
+                        duration = 50;
+                        break;
+                    case MOVE:
+                        toneType = ToneGenerator.TONE_PROP_ACK;
+                        duration = 100;
+                        break;
+                    case WIN:
+                        toneType = ToneGenerator.TONE_CDMA_ALERT_CALL_GUARD;
+                        duration = 200;
+                        break;
+                    case LOSE:
+                        toneType = ToneGenerator.TONE_CDMA_ABBR_ALERT;
+                        duration = 200;
+                        break;
+                    case DRAW:
+                        toneType = ToneGenerator.TONE_PROP_NACK;
+                        duration = 150;
+                        break;
+                    default:
+                        toneType = ToneGenerator.TONE_PROP_BEEP;
+                        duration = 50;
+                        break;
+                }
+
+                toneGenerator.startTone(toneType, duration);
+                Log.d(TAG, "Played sound: " + effect.name());
+            } else {
+                Log.w(TAG, "ToneGenerator is null, cannot play sound");
+            }
 
         } catch (Exception e) {
             Log.e(TAG, "Error playing sound: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -137,6 +191,7 @@ public class SoundManager {
      */
     public void startBackgroundMusic() {
         if (!backgroundMusicEnabled || backgroundMusicPlayer != null) {
+            Log.d(TAG, "Background music not started. Enabled: " + backgroundMusicEnabled + ", Player exists: " + (backgroundMusicPlayer != null));
             return;
         }
 
@@ -144,10 +199,14 @@ public class SoundManager {
             // For now, we'll skip background music as we don't have audio files
             // In a real implementation:
             // backgroundMusicPlayer = MediaPlayer.create(context, R.raw.background_music);
-            // backgroundMusicPlayer.setLooping(true);
-            // backgroundMusicPlayer.start();
+            // if (backgroundMusicPlayer != null) {
+            //     backgroundMusicPlayer.setLooping(true);
+            //     backgroundMusicPlayer.setVolume(0.3f, 0.3f); // 30% volume
+            //     backgroundMusicPlayer.start();
+            //     Log.d(TAG, "Background music started");
+            // }
 
-            Log.d(TAG, "Background music started (placeholder)");
+            Log.d(TAG, "Background music disabled (no audio file)");
         } catch (Exception e) {
             Log.e(TAG, "Error starting background music: " + e.getMessage());
         }
@@ -159,9 +218,12 @@ public class SoundManager {
     public void stopBackgroundMusic() {
         if (backgroundMusicPlayer != null) {
             try {
-                backgroundMusicPlayer.stop();
+                if (backgroundMusicPlayer.isPlaying()) {
+                    backgroundMusicPlayer.stop();
+                }
                 backgroundMusicPlayer.release();
                 backgroundMusicPlayer = null;
+                Log.d(TAG, "Background music stopped");
             } catch (Exception e) {
                 Log.e(TAG, "Error stopping background music: " + e.getMessage());
             }
@@ -173,7 +235,12 @@ public class SoundManager {
      */
     public void pauseBackgroundMusic() {
         if (backgroundMusicPlayer != null && backgroundMusicPlayer.isPlaying()) {
-            backgroundMusicPlayer.pause();
+            try {
+                backgroundMusicPlayer.pause();
+                Log.d(TAG, "Background music paused");
+            } catch (Exception e) {
+                Log.e(TAG, "Error pausing background music: " + e.getMessage());
+            }
         }
     }
 
@@ -182,19 +249,39 @@ public class SoundManager {
      */
     public void resumeBackgroundMusic() {
         if (backgroundMusicPlayer != null && backgroundMusicEnabled) {
-            backgroundMusicPlayer.start();
+            try {
+                backgroundMusicPlayer.start();
+                Log.d(TAG, "Background music resumed");
+            } catch (Exception e) {
+                Log.e(TAG, "Error resuming background music: " + e.getMessage());
+            }
+        } else if (backgroundMusicEnabled && backgroundMusicPlayer == null) {
+            startBackgroundMusic();
         }
     }
 
     /**
-     * Update settings
+     * Update settings from SharedPreferences
      */
     public void updateSettings() {
+        boolean oldSfxEnabled = soundEffectsEnabled;
+        boolean oldMusicEnabled = backgroundMusicEnabled;
+
         soundEffectsEnabled = sharedPreferences.getBoolean(KEY_SOUND_EFFECTS, true);
         backgroundMusicEnabled = sharedPreferences.getBoolean(KEY_BACKGROUND_MUSIC, true);
 
+        Log.d(TAG, "Settings updated - SFX: " + oldSfxEnabled + " -> " + soundEffectsEnabled +
+                   ", Music: " + oldMusicEnabled + " -> " + backgroundMusicEnabled);
+
         if (!backgroundMusicEnabled) {
             stopBackgroundMusic();
+        } else if (backgroundMusicEnabled && !oldMusicEnabled) {
+            startBackgroundMusic();
+        }
+
+        // Reinitialize ToneGenerator if it's null
+        if (soundEffectsEnabled && toneGenerator == null) {
+            initializeToneGenerator();
         }
     }
 
@@ -203,6 +290,12 @@ public class SoundManager {
      */
     public void setSoundEffectsEnabled(boolean enabled) {
         soundEffectsEnabled = enabled;
+        sharedPreferences.edit().putBoolean(KEY_SOUND_EFFECTS, enabled).apply();
+        Log.d(TAG, "Sound effects " + (enabled ? "enabled" : "disabled"));
+
+        if (enabled && toneGenerator == null) {
+            initializeToneGenerator();
+        }
     }
 
     /**
@@ -210,6 +303,9 @@ public class SoundManager {
      */
     public void setBackgroundMusicEnabled(boolean enabled) {
         backgroundMusicEnabled = enabled;
+        sharedPreferences.edit().putBoolean(KEY_BACKGROUND_MUSIC, enabled).apply();
+        Log.d(TAG, "Background music " + (enabled ? "enabled" : "disabled"));
+
         if (!enabled) {
             stopBackgroundMusic();
         } else {
@@ -218,14 +314,37 @@ public class SoundManager {
     }
 
     /**
+     * Check if sound effects are enabled
+     */
+    public boolean isSoundEffectsEnabled() {
+        return soundEffectsEnabled;
+    }
+
+    /**
+     * Check if background music is enabled
+     */
+    public boolean isBackgroundMusicEnabled() {
+        return backgroundMusicEnabled;
+    }
+
+    /**
      * Release all resources
      */
     public void release() {
+        Log.d(TAG, "Releasing SoundManager resources");
+
+        if (toneGenerator != null) {
+            toneGenerator.release();
+            toneGenerator = null;
+        }
+
         if (soundPool != null) {
             soundPool.release();
             soundPool = null;
         }
+
         stopBackgroundMusic();
+        isInitialized = false;
     }
 }
 
