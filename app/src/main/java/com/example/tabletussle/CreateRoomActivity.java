@@ -4,8 +4,10 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,6 +24,10 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.MultiFormatWriter;
+import com.google.zxing.WriterException;
+import com.google.zxing.common.BitMatrix;
 
 import java.util.Random;
 
@@ -33,6 +39,7 @@ public class CreateRoomActivity extends AppCompatActivity {
     private Chip chipClassic, chipTimed, chipBlitz;
     private MaterialButton btnCopyCode, btnShareCode, btnStartGame;
     private ImageButton btnBack;
+    private ImageView ivQrCode;
 
     private UserSession userSession;
     private AppDatabase database;
@@ -85,6 +92,7 @@ public class CreateRoomActivity extends AppCompatActivity {
         btnShareCode = findViewById(R.id.btnShareCode);
         btnStartGame = findViewById(R.id.btnStartGame);
         btnBack = findViewById(R.id.btnBack);
+        ivQrCode = findViewById(R.id.ivQrCode);
 
         // Set default room name
         int userId = userSession.getUserId();
@@ -113,6 +121,41 @@ public class CreateRoomActivity extends AppCompatActivity {
         } while (roomDao.isRoomCodeActive(roomCode));
 
         tvRoomCode.setText(roomCode);
+
+        // Generate and display QR code
+        generateQRCode(roomCode);
+    }
+
+    /**
+     * Generate QR code bitmap for the room code
+     */
+    private void generateQRCode(String content) {
+        try {
+            MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
+            BitMatrix bitMatrix = multiFormatWriter.encode(
+                content,
+                BarcodeFormat.QR_CODE,
+                500,
+                500
+            );
+
+            int width = bitMatrix.getWidth();
+            int height = bitMatrix.getHeight();
+            Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565);
+
+            for (int x = 0; x < width; x++) {
+                for (int y = 0; y < height; y++) {
+                    bitmap.setPixel(x, y, bitMatrix.get(x, y) ?
+                        0xFF000000 : 0xFFFFFFFF); // Black or White
+                }
+            }
+
+            ivQrCode.setImageBitmap(bitmap);
+
+        } catch (WriterException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Failed to generate QR code", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void setupClickListeners() {
